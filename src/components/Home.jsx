@@ -110,141 +110,212 @@ export default function Home() {
       
       {/* Hero Section with Background */}
       <div
-        className="bg-[#003366] relative overflow-hidden"
+        className="bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 relative overflow-hidden"
         style={{
           backgroundImage: "url('/library.jpg')",
           backgroundSize: "cover",
-          backgroundPosition: "center center"
+          backgroundPosition: "center center",
+          backgroundBlendMode: "multiply"
         }}
       >
-        {/* Background Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/70 z-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30 z-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/5 to-indigo-900/15 z-10"></div>
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-15"></div>
+        {/* Animated Background Shapes */}
+        <div className="absolute inset-0 z-5">
+          <div className="absolute top-20 left-10 w-32 h-32 bg-yellow-400/10 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute top-40 right-20 w-48 h-48 bg-blue-400/10 rounded-full blur-2xl animate-bounce"></div>
+          <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-green-400/10 rounded-full blur-xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/3 right-1/3 w-24 h-24 bg-purple-400/10 rounded-full blur-lg animate-ping"></div>
+        </div>
 
-        {/* Hero Content - Text at Top */}
-        <div className="relative z-20 flex flex-col items-center justify-center py-8 sm:py-10 md:py-12 lg:py-14 xl:py-16 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-          {/* Hero Text */}
-          <div className="text-center w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-4xl mx-auto mb-4 sm:mb-5 md:mb-6 lg:mb-7 xl:mb-8">
-            <h1 className="font-bold text-white leading-tight mb-2 xs:mb-3 sm:mb-4 md:mb-5">
-              <span 
-                className="block text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold"
-                style={{
-                  textShadow: `
-                    0 2px 8px rgba(0, 0, 0, 0.8),
-                    0 0 20px rgba(255, 255, 255, 0.3)
-                  `,
-                  color: '#ffffff'
-                }}
-              >
-                Discover the Future of Learning
-              </span>
-              <span 
-                className="block mt-1 xs:mt-1.5 sm:mt-2 text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold"
-                style={{
-                  textShadow: `
-                    0 2px 10px rgba(0, 0, 0, 0.9),
-                    0 0 25px rgba(255, 255, 255, 0.4)
-                  `,
-                  color: '#ffffff'
-                }}
-              >
-                Welcome to College of Education, Nagaon
-              </span>
-            </h1>
-            <p 
-              className="leading-relaxed font-medium mx-auto text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl mb-4 xs:mb-5 sm:mb-6 md:mb-8 max-w-xs xs:max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl px-1 xs:px-2 sm:px-0"
-              style={{
-                textShadow: `
-                  0 2px 6px rgba(0, 0, 0, 0.7),
-                  0 0 15px rgba(255, 255, 255, 0.2)
-                `,
-                color: '#ffffff'
-              }}
-            >
-              Access millions of academic resources, research papers, and digital collections.
-            </p>
+        {/* Background Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/60 via-teal-800/40 to-cyan-900/60 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 z-10"></div>
+        
+        {/* Geometric Pattern Overlay */}
+        <div className="absolute inset-0 z-15" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,255,255,0.05) 2px, transparent 2px),
+                           radial-gradient(circle at 75% 75%, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px, 40px 40px'
+        }}></div>
+
+        {/* Hero Content - Centered Layout */}
+        <div className="relative z-20 flex flex-col items-center justify-center py-6 sm:py-8 md:py-10 lg:py-12 max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+          
+          {/* Floating Cards Background */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-8 w-16 h-20 bg-white/5 rounded-lg rotate-12 animate-float"></div>
+            <div className="absolute top-1/3 right-12 w-12 h-16 bg-white/5 rounded-lg -rotate-6 animate-float delay-500"></div>
+            <div className="absolute bottom-1/4 left-1/4 w-14 h-18 bg-white/5 rounded-lg rotate-45 animate-float delay-1000"></div>
           </div>
 
-          {/* Search Section */}
-          <div className="w-full mb-3 sm:mb-4 md:mb-5 lg:mb-6">
-            <div className="max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto px-4 sm:px-0">
-              <div className="bg-white/95 backdrop-blur-lg shadow-2xl rounded-lg xs:rounded-xl lg:rounded-2xl border border-white/60 overflow-hidden ring-1 ring-gray-200/20">
-                <div className="p-1 xs:p-1.5 sm:p-2 lg:p-2.5">
-                  <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3">
-                    <div className="flex items-center justify-center w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 flex-shrink-0">
-                      <svg className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <input
-                        type="text"
-                        placeholder="Search for journals, papers, articles..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && searchTerm.trim()) {
-                            window.location.href = `/search/${encodeURIComponent(searchTerm.trim())}`;
-                          }
-                        }}
-                        className="w-full px-1 xs:px-1.5 py-1 xs:py-1.5 sm:py-2 text-gray-800 bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-500 text-xs xs:text-sm lg:text-base font-medium"
-                        aria-label="Search for academic resources"
-                      />
-                    </div>
-                    <div className="flex items-center flex-shrink-0">
-                      <button
-                        onClick={() => {
-                          if (searchTerm.trim()) {
-                            window.location.href = `/search/${encodeURIComponent(searchTerm.trim())}`;
-                          }
-                        }}
-                        className="text-blue-600 hover:text-blue-700 active:text-blue-800 px-2 xs:px-2.5 sm:px-3 py-1 xs:py-1.5 sm:py-2 font-bold text-xs xs:text-sm lg:text-base transition-colors duration-200 whitespace-nowrap hover:bg-blue-50/50 rounded-md xs:rounded-lg"
-                        aria-label="Submit search"
-                      >
-                        Search
-                      </button>
+          {/* Main Content Container */}
+          <div className="text-center w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-3xl xl:max-w-5xl mx-auto">
+            
+            {/* Badge/Tagline */}
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-full border border-emerald-400/30 mb-4 animate-fadeInUp">
+              <span className="text-white text-sm font-medium">🎓 Excellence in Education</span>
+            </div>
+
+            {/* Main Heading with Different Typography */}
+            <h1 className="font-bold text-white leading-tight mb-4 animate-fadeInUp delay-200">
+              <span 
+                className="block text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white"
+                style={{
+                  textShadow: `0 4px 12px rgba(0, 0, 0, 0.5)`,
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                Digital Knowledge
+              </span>
+              <span 
+                className="block mt-2 text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white"
+                style={{
+                  textShadow: `0 2px 8px rgba(0, 0, 0, 0.7)`,
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                Awaits You
+              </span>
+              <span 
+                className="block mt-3 text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-white"
+                style={{
+                  textShadow: `0 2px 6px rgba(0, 0, 0, 0.6)`
+                }}
+              >
+                College of Education, Nagaon
+              </span>
+            </h1>
+            
+            {/* Enhanced Subtitle with Visual Elements */}
+            <div className="mb-5 animate-fadeInUp delay-300">
+              {/* Decorative line */}
+              <div className="flex items-center justify-center mb-3">
+                <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent w-24"></div>
+                <div className="mx-4">
+                  <svg className="w-6 h-6 text-white/60" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </div>
+                <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent w-24"></div>
+              </div>
+              
+              {/* Main subtitle text with enhanced styling */}
+              <p 
+                className="leading-relaxed font-medium mx-auto text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl max-w-xs xs:max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl px-4 text-white"
+                style={{
+                  textShadow: `0 4px 8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1)`,
+                  lineHeight: '1.4',
+                  letterSpacing: '0.01em'
+                }}
+              >
+                <span className="inline-block">
+                  <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent font-semibold">
+                    Unlock a world of academic excellence
+                  </span>
+                </span>
+                <br className="hidden sm:block" />
+                <span className="inline-block mt-2 sm:mt-0">
+                  <span className="text-white/90 font-normal">
+                    with cutting-edge research, comprehensive resources,
+                  </span>
+                </span>
+                <br className="hidden sm:block" />
+                <span className="inline-block mt-2 sm:mt-0">
+                  <span className="bg-gradient-to-r from-emerald-200 via-teal-200 to-cyan-200 bg-clip-text text-transparent font-medium">
+                    and innovative learning experiences.
+                  </span>
+                </span>
+              </p>
+            </div>
+            
+            {/* Enhanced Search Section */}
+            <div className="w-full mb-4 animate-fadeInUp delay-400">
+              <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl mx-auto px-4 sm:px-0">
+                <div className="bg-white/95 backdrop-blur-xl shadow-2xl rounded-xl border border-emerald-200/30 overflow-hidden ring-1 ring-white/20 transform hover:scale-105 transition-all duration-300">
+                  <div className="p-2 lg:p-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <input
+                          type="text"
+                          placeholder="Discover journals, research papers, articles..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && searchTerm.trim()) {
+                              window.location.href = `/search/${encodeURIComponent(searchTerm.trim())}`;
+                            }
+                          }}
+                          className="w-full px-2 py-2 sm:py-3 text-gray-800 bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-500 text-sm sm:text-base font-medium"
+                          aria-label="Search for academic resources"
+                        />
+                      </div>
+                      <div className="flex items-center flex-shrink-0">
+                        <button
+                          onClick={() => {
+                            if (searchTerm.trim()) {
+                              window.location.href = `/search/${encodeURIComponent(searchTerm.trim())}`;
+                            }
+                          }}
+                          className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-3 sm:px-4 py-2 font-bold text-sm transition-all duration-200 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105"
+                          aria-label="Submit search"
+                        >
+                          Search
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Advanced Search Button */}
-              <div className="flex justify-center mt-1.5 xs:mt-2">
-                <Link
-                  href="/advanceSearch"
-                  className="bg-white/90 hover:bg-white/95 backdrop-blur-lg text-gray-600 hover:text-gray-800 px-2.5 xs:px-3 sm:px-4 py-1 xs:py-1.5 sm:py-2 rounded-md xs:rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm border border-white/40 inline-flex items-center gap-1 xs:gap-1.5"
-                >
-                  <svg className="w-2.5 h-2.5 xs:w-3 xs:h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                  </svg>
-                  Advanced Search
-                </Link>
+                
+                {/* Advanced Search Button */}
+                <div className="flex justify-center mt-2">
+                  <Link
+                    href="/advanceSearch"
+                    className="bg-white/20 hover:bg-white/30 backdrop-blur-lg text-white border border-white/30 hover:border-white/50 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl inline-flex items-center gap-1.5 transform hover:scale-105"
+                  >
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                    </svg>
+                    Advanced Search
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Call to Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center max-w-sm sm:max-w-md md:max-w-lg mx-auto px-4 sm:px-0">
-            <Link
-              href="/advanceSearch"
-              className="bg-white text-blue-600 hover:bg-blue-50 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-center text-sm"
-            >
-              🔍 Start Exploring
-            </Link>
-            <Link
-              href="/subjects"
-              className="bg-blue-600/20 backdrop-blur-sm text-white hover:bg-blue-600/30 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20 text-center text-sm"
-            >
-              📚 Browse Subjects
-            </Link>
+            {/* Modern Call to Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md mx-auto animate-fadeInUp delay-500">
+              <Link
+                href="/advanceSearch"
+                className="group bg-gradient-to-r from-white to-gray-50 text-emerald-600 hover:text-emerald-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-center text-sm sm:text-base border border-emerald-200/30"
+              >
+                <span className="flex items-center justify-center gap-1.5">
+                  🔍 Start Exploring
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </span>
+              </Link>
+              <Link
+                href="/subjects"
+                className="group bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-sm text-white hover:bg-emerald-500/30 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-white/20 text-center text-sm sm:text-base"
+              >
+                <span className="flex items-center justify-center gap-1.5">
+                  📚 Browse Subjects
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Stats Section */}
-      <div className="relative z-10 bg-gradient-to-r from-cyan-50 to-cyan-100">
+      <div className="relative z-10 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-10 md:py-12 lg:py-14 xl:py-16">
           {/* Mobile Layout - Single Column */}
           <div className="block sm:hidden space-y-4 max-w-sm mx-auto">
