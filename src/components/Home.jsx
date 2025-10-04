@@ -164,16 +164,7 @@ export default function Home() {
                   letterSpacing: '-0.02em'
                 }}
               >
-                Digital Knowledge
-              </span>
-              <span 
-                className="block mt-2 text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white"
-                style={{
-                  textShadow: `0 2px 8px rgba(0, 0, 0, 0.7)`,
-                  letterSpacing: '-0.01em'
-                }}
-              >
-                Awaits You
+                Digital Knowledge Awaits You
               </span>
               <span 
                 className="block mt-3 text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-white"
