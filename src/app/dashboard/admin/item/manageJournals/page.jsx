@@ -14,6 +14,7 @@ const manageItem = () => {
   const [journals, setJournals] = useState([]);
   const [filteredJournals, setFilteredJournals] = useState([]);
   const [selectedJournal, setSelectedJournal] = useState(null);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     type: '',
     fileUrl: '',
@@ -30,6 +31,7 @@ const manageItem = () => {
       date: '',
       references: '',
       keywords: '',
+      indexing: [], // Array to store selected indexing options
       journalOrPublicationTitle: '',
       issn: '',
       officialURL: '',
@@ -45,6 +47,9 @@ const manageItem = () => {
       university: '',
       courseName: '',
       courseCode: '',
+      page: '',
+      languages: '',
+      description: '',
     },
   });
   const [file, setFile] = useState(null);
@@ -107,10 +112,8 @@ const manageItem = () => {
         const journalDate = journal.detail.date;
         if (!journalDate) return false;
         
-        // Convert journal date to Date object for comparison
         const journalDateObj = new Date(journalDate);
         
-        // Check if journal date is within the specified range
         let isWithinRange = true;
         
         if (filters.dateFrom) {
@@ -120,7 +123,6 @@ const manageItem = () => {
         
         if (filters.dateTo) {
           const toDate = new Date(filters.dateTo);
-          // Set time to end of day for 'to' date to include the entire day
           toDate.setHours(23, 59, 59, 999);
           isWithinRange = isWithinRange && journalDateObj <= toDate;
         }
@@ -145,7 +147,6 @@ const manageItem = () => {
     setFormData((prev) => {
       const newDetail = { ...prev.detail };
 
-      // Clear fields not relevant to the new type
       if (prev.type !== formData.type) {
         if (formData.type !== 'Conference Proceeding') {
           newDetail.conference = '';
@@ -170,13 +171,16 @@ const manageItem = () => {
           newDetail.journalOrPublicationTitle = '';
           newDetail.issn = '';
         }
-        // University is used for Thesis, Dissertation, and Question Papers
         if (!['Thesis', 'Dissertation', 'Question Papers'].includes(formData.type)) {
           newDetail.university = '';
         }
-        // Guides only for Thesis/Dissertation
         if (!['Thesis', 'Dissertation'].includes(formData.type)) {
           newDetail.guides = [{ firstName: '', lastName: '', email: '' }];
+        }
+        if (formData.type !== 'Manuscript') {
+          newDetail.page = '';
+          newDetail.languages = '';
+          newDetail.description = '';
         }
       }
 
@@ -184,12 +188,12 @@ const manageItem = () => {
     });
   }, [formData.type, selectedJournal]);
 
-  // Handle file selection and upload (with replacement support)
+  // Handle file selection and upload
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    if (selectedFile.type !== 'application/pdf') {
+    if (selectedFile.type !== 'application/pdf' && formData.type !== 'Manuscript') {
       toast.error('Please select a PDF file');
       return;
     }
@@ -241,7 +245,7 @@ const manageItem = () => {
   // Handle form input changes
   const handleInputChange = (e, field, index) => {
     const { name, value } = e.target;
-  if (field === 'creators' || field === 'guides') {
+    if (field === 'creators' || field === 'guides') {
       setFormData({
         ...formData,
         detail: {
@@ -259,6 +263,32 @@ const manageItem = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  // Handle indexing checkbox changes
+  const handleIndexingChange = (option, checked) => {
+    setFormData(prevState => {
+      const currentIndexing = prevState.detail.indexing || [];
+      let newIndexing;
+      
+      if (checked) {
+        // Add option if checked and not already present
+        newIndexing = currentIndexing.includes(option) 
+          ? currentIndexing 
+          : [...currentIndexing, option];
+      } else {
+        // Remove option if unchecked
+        newIndexing = currentIndexing.filter(item => item !== option);
+      }
+      
+      return {
+        ...prevState,
+        detail: {
+          ...prevState.detail,
+          indexing: newIndexing
+        }
+      };
+    });
   };
 
   // Add new creator field
@@ -318,6 +348,7 @@ const manageItem = () => {
   // Select journal for update
   const handleSelectJournal = (journal) => {
     setSelectedJournal(journal);
+    setEditingId(journal._id);
     setFormData({
       type: journal.type || '',
       fileUrl: journal.fileUrl || '',
@@ -346,9 +377,13 @@ const manageItem = () => {
         department: journal.detail.department || '',
         semester: journal.detail.semester || '',
         year: journal.detail.year || '',
-  university: journal.detail.university || '',
-  courseName: journal.detail.courseName || '',
-  courseCode: journal.detail.courseCode || '',
+        university: journal.detail.university || '',
+        courseName: journal.detail.courseName || '',
+        courseCode: journal.detail.courseCode || '',
+        page: journal.detail.page || '',
+        languages: journal.detail.languages || '',
+        description: journal.detail.description || '',
+        indexing: journal.detail.indexing || [],
       },
     });
     setFile(null);
@@ -374,6 +409,7 @@ const manageItem = () => {
       setJournals(updatedJournals);
       setFilteredJournals(updatedJournals);
       setSelectedJournal(null);
+      setEditingId(null);
       setFormData({
         type: '',
         fileUrl: '',
@@ -403,6 +439,11 @@ const manageItem = () => {
           semester: '',
           year: '',
           university: '',
+          courseName: '',
+          courseCode: '',
+          page: '',
+          languages: '',
+          description: '',
         },
       });
       setFile(null);
@@ -437,6 +478,50 @@ const manageItem = () => {
     }
   };
 
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setSelectedJournal(null);
+    setEditingId(null);
+    setStep(1);
+    setFormData({
+      type: '',
+      fileUrl: '',
+      subjectId: '',
+      detail: {
+        title: '',
+        abstract: '',
+        creators: [{ firstName: '', lastName: '', email: '' }],
+        guides: [{ firstName: '', lastName: '', email: '' }],
+        status: '',
+        volume: '',
+        number: '',
+        pageRange: '',
+        date: '',
+        references: '',
+        keywords: '',
+        journalOrPublicationTitle: '',
+        issn: '',
+        officialURL: '',
+        doi: '',
+        conference: '',
+        bookName: '',
+        isbn: '',
+        publisher: '',
+        preface: '',
+        department: '',
+        semester: '',
+        year: '',
+        university: '',
+        courseName: '',
+        courseCode: '',
+        page: '',
+        languages: '',
+        description: '',
+      },
+    });
+    setFile(null);
+  };
+
   // Validation for proceeding to next step
   const canProceed = () => {
     switch (step) {
@@ -448,60 +533,38 @@ const manageItem = () => {
         return (
           formData.detail.title.trim() !== '' &&
           (formData.type !== 'Question Papers'
-            ? formData.detail.creators.every(
-                (creator) =>
-                  creator.firstName.trim() !== '' &&
-                  creator.lastName.trim() !== '' &&
-                  creator.email.trim() !== ''
-              )
-            : true) &&
-          (['Conference Proceeding', 'Book', 'Book Chapters', 'Research Papers', 'Thesis', 'Dissertation'].includes(formData.type)
-            ? formData.detail.abstract.trim() !== ''
+            ? formData.detail.creators.every((creator) => creator.firstName.trim() !== '')
             : true) &&
           (formData.type === 'Conference Proceeding'
-            ? formData.detail.conference.trim() !== '' &&
-              formData.detail.journalOrPublicationTitle.trim() !== '' &&
-              formData.detail.issn.trim() !== '' &&
-              formData.detail.officialURL.trim() !== '' &&
-              formData.detail.doi.trim() !== ''
-            : true) &&
-          (formData.type === 'Book Chapters'
-            ? formData.detail.bookName.trim() !== '' &&
-              formData.detail.isbn.trim() !== '' &&
-              formData.detail.publisher.trim() !== '' &&
-              formData.detail.doi.trim() !== ''
+            ? formData.detail.status.trim() !== '' &&
+              formData.detail.date.trim() !== ''
             : true) &&
           (formData.type === 'Book'
-            ? formData.detail.isbn.trim() !== '' &&
-              formData.detail.publisher.trim() !== '' &&
-              formData.detail.preface.trim() !== '' &&
-              formData.detail.doi.trim() !== ''
+            ? formData.detail.status.trim() !== '' &&
+              formData.detail.date.trim() !== ''
+            : true) &&
+          (formData.type === 'Book Chapters'
+            ? formData.detail.status.trim() !== '' &&
+              formData.detail.date.trim() !== ''
             : true) &&
           (formData.type === 'Question Papers'
             ? formData.detail.department.trim() !== '' &&
-              formData.detail.semester.trim() !== '' &&
-              formData.detail.year.trim() !== '' &&
-              formData.detail.courseName.trim() !== '' &&
-              formData.detail.courseCode.trim() !== '' &&
-              formData.detail.university.trim() !== ''
+              formData.detail.year.trim() !== ''
             : true) &&
           (formData.type === 'Research Papers'
-            ? formData.detail.journalOrPublicationTitle.trim() !== '' &&
-              formData.detail.issn.trim() !== '' &&
-              formData.detail.doi.trim() !== ''
+            ? formData.detail.status.trim() !== '' &&
+              formData.detail.date.trim() !== ''
             : true) &&
-          (['Thesis', 'Dissertation'].includes(formData.type)
-            ? formData.detail.abstract.trim() !== '' &&
-              formData.detail.university.trim() !== '' &&
-              formData.detail.guides.every(
-                (guide) =>
-                  guide.firstName.trim() !== '' &&
-                  guide.lastName.trim() !== '' &&
-                  guide.email.trim() !== ''
-              ) &&
+          (formData.type === 'Thesis'
+            ? formData.detail.date.trim() !== ''
+            : true) &&
+          (formData.type === 'Dissertation'
+            ? formData.detail.date.trim() !== ''
+            : true) &&
+          (formData.type === 'Manuscript'
+            ? formData.detail.title.trim() !== '' &&
               formData.detail.date.trim() !== '' &&
-              formData.detail.pageRange.trim() !== '' &&
-              formData.detail.keywords.trim() !== ''
+              formData.detail.creators.every((creator) => creator.firstName.trim() !== '')
             : true)
         );
       case 4:
@@ -545,10 +608,14 @@ const manageItem = () => {
               <option value="Conference Proceeding">Conference Proceeding</option>
               <option value="Book">Book</option>
               <option value="Book Chapters">Book Chapters</option>
+              <option value="Magazine">Magazine</option>
+              <option value="Manuscript">Manuscript</option>
+              <option value="Newspaper">Newspaper</option>
               <option value="Question Papers">Question Papers</option>
               <option value="Research Papers">Research Papers</option>
               <option value="Thesis">Thesis</option>
               <option value="Dissertation">Dissertation</option>
+              <option value="Manuscript">Manuscript</option>
             </select>
           </div>
         );
@@ -559,12 +626,15 @@ const manageItem = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-                  {formData.fileUrl ? 'Replace with New PDF File' : 'Upload PDF File'}
+                  {formData.type === 'Manuscript'
+                    ? (formData.fileUrl ? 'Replace with New File (All formats accepted)' : 'Upload File (All formats accepted)')
+                    : (formData.fileUrl ? 'Replace with New PDF File' : 'Upload PDF File')
+                  }
                 </label>
                 <input
                   type="file"
                   id="file"
-                  accept="application/pdf"
+                  accept={formData.type === 'Manuscript' ? '*/*' : 'application/pdf'}
                   onChange={handleFileChange}
                   className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
@@ -627,14 +697,13 @@ const manageItem = () => {
                   className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                   required
                 />
-                {['Conference Proceeding', 'Book', 'Book Chapters', 'Research Papers', 'Thesis', 'Dissertation'].includes(formData.type) && (
+                {['Conference Proceeding', 'Book', 'Book Chapters', 'Research Papers', 'Thesis', 'Dissertation', 'Manuscript'].includes(formData.type) && (
                   <textarea
                     name="abstract"
                     value={formData.detail.abstract}
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Abstract"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-32"
-                    required
                   />
                 )}
                 {['Conference Proceeding', 'Book', 'Book Chapters', 'Research Papers'].includes(formData.type) && (
@@ -665,7 +734,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Page Range (e.g., 1-10)"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required={['Thesis', 'Dissertation'].includes(formData.type)}
                   />
                 )}
                 {['Conference Proceeding', 'Book Chapters', 'Book', 'Research Papers'].includes(formData.type) && (
@@ -674,6 +742,7 @@ const manageItem = () => {
                     value={formData.detail.status}
                     onChange={(e) => handleInputChange(e, 'detail')}
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                    required={['Conference Proceeding', 'Book', 'Book Chapters', 'Research Papers'].includes(formData.type)}
                   >
                     <option value="">Select Status</option>
                     <option value="In Press">In Press</option>
@@ -681,7 +750,7 @@ const manageItem = () => {
                     <option value="Pending">Pending</option>
                   </select>
                 )}
-                {['Conference Proceeding', 'Book Chapters', 'Book', 'Research Papers', 'Thesis', 'Dissertation'].includes(formData.type) && (
+                {['Conference Proceeding', 'Book Chapters', 'Book', 'Research Papers', 'Thesis', 'Dissertation', 'Manuscript'].includes(formData.type) && (
                   <input
                     type="date"
                     name="date"
@@ -689,7 +758,7 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Submitted Date"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required={['Thesis', 'Dissertation'].includes(formData.type)}
+                    required={['Conference Proceeding', 'Book', 'Book Chapters', 'Research Papers', 'Thesis', 'Dissertation', 'Manuscript'].includes(formData.type)}
                   />
                 )}
                 {formData.type === 'Conference Proceeding' && (
@@ -700,7 +769,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Conference"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {formData.type === 'Question Papers' && (
@@ -731,7 +799,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'detail')}
                       placeholder="Course Name"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     <input
                       type="text"
@@ -740,7 +807,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'detail')}
                       placeholder="Course Code"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                   </>
                 )}
@@ -752,7 +818,16 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="University"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
+                  />
+                )}
+                {formData.type === 'Manuscript' && (
+                  <input
+                    type="text"
+                    name="page"
+                    value={formData.detail.page}
+                    onChange={(e) => handleInputChange(e, 'detail')}
+                    placeholder="Page Number/Range"
+                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
                   />
                 )}
               </div>
@@ -765,7 +840,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Journal or Publication Title"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {['Conference Proceeding', 'Research Papers'].includes(formData.type) && (
@@ -776,7 +850,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="ISSN"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {['Book Chapters', 'Book'].includes(formData.type) && (
@@ -785,9 +858,8 @@ const manageItem = () => {
                     name="bookName"
                     value={formData.detail.bookName}
                     onChange={(e) => handleInputChange(e, 'detail')}
-                    placeholder="Book Name"
+                    placeholder={formData.type === 'Book' ? 'Subtitle' : 'Book Name'}
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {['Book Chapters', 'Book'].includes(formData.type) && (
@@ -798,7 +870,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="ISBN"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {['Book Chapters', 'Book', 'Research Papers'].includes(formData.type) && (
@@ -809,7 +880,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Publisher"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {formData.type === 'Book' && (
@@ -820,7 +890,6 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Preface"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 )}
                 {formData.type === 'Question Papers' && (
@@ -832,7 +901,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'detail')}
                       placeholder="Semester"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     <input
                       type="text"
@@ -874,7 +942,7 @@ const manageItem = () => {
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-32"
                   />
                 )}
-                {['Conference Proceeding', 'Book Chapters', 'Book', 'Question Papers', 'Research Papers', 'Thesis', 'Dissertation'].includes(formData.type) && (
+                {['Conference Proceeding', 'Book Chapters', 'Book', 'Question Papers', 'Research Papers', 'Thesis', 'Dissertation', 'Manuscript'].includes(formData.type) && (
                   <input
                     type="text"
                     name="keywords"
@@ -882,7 +950,47 @@ const manageItem = () => {
                     onChange={(e) => handleInputChange(e, 'detail')}
                     placeholder="Keywords (comma-separated)"
                     className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                    required={['Thesis', 'Dissertation'].includes(formData.type)}
+                  />
+                )}
+                
+                {/* Indexing Checkboxes */}
+                {['Research Papers', 'Conference Proceeding', 'Book', 'Book Chapters'].includes(formData.type) && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Indexing
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {['Scopus', 'Web of Science', 'UGC', 'Peer Reviewed'].map((option) => (
+                        <label key={option} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={(formData.detail.indexing || []).includes(option)}
+                            onChange={(e) => handleIndexingChange(option, e.target.checked)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="text-sm text-gray-700">{option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {formData.type === 'Manuscript' && (
+                  <input
+                    type="text"
+                    name="languages"
+                    value={formData.detail.languages}
+                    onChange={(e) => handleInputChange(e, 'detail')}
+                    placeholder="Language(s)"
+                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
+                {formData.type === 'Manuscript' && (
+                  <textarea
+                    name="description"
+                    value={formData.detail.description}
+                    onChange={(e) => handleInputChange(e, 'detail')}
+                    placeholder="Description"
+                    className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-32"
                   />
                 )}
               </div>
@@ -908,7 +1016,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'creators', index)}
                       placeholder="Last Name"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     <input
                       type="email"
@@ -917,7 +1024,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'creators', index)}
                       placeholder="Email"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     {formData.detail.creators.length > 1 && (
                       <button
@@ -949,7 +1055,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'guides', index)}
                       placeholder="First Name"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     <input
                       type="text"
@@ -958,7 +1063,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'guides', index)}
                       placeholder="Last Name"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     <input
                       type="email"
@@ -967,7 +1071,6 @@ const manageItem = () => {
                       onChange={(e) => handleInputChange(e, 'guides', index)}
                       placeholder="Email"
                       className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     {formData.detail.guides.length > 1 && (
                       <button
@@ -1023,7 +1126,7 @@ const manageItem = () => {
               ) : (
                 <Send size={20} />
               )}
-              Update Journal
+              Update Item
             </button>
           </div>
         );
@@ -1036,171 +1139,182 @@ const manageItem = () => {
     <div className="h-screen bg-gray-50">
       <div className="h-screen overflow-y-auto">
         <div className="max-w-6xl mx-auto p-6 bg-white shadow-md rounded-lg m-6">
-      <Toaster position="top-right" reverseOrder={false} />
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Manage Items</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+          <Toaster position="top-right" reverseOrder={false} />
+          <h1 className="text-2xl font-bold mb-6 text-gray-800">Manage Items</h1>
+          {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      {/* Filter Section */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Filter Items</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div>
-            <label htmlFor="filterType" className="block text-sm font-medium text-gray-700">
-              Filter by Type
-            </label>
-            <select
-              name="type"
-              value={filters.type}
-              onChange={handleFilterChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              disabled={dataLoading}
-            >
-              <option value="">All Types</option>
-              <option value="Conference Proceeding">Conference Proceeding</option>
-              <option value="Book">Book</option>
-            university: '',
-            courseName: '',
-            courseCode: '',
-              <option value="Question Papers">Question Papers</option>
-              <option value="Research Papers">Research Papers</option>
-              <option value="Thesis">Thesis</option>
-              <option value="Dissertation">Dissertation</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="filterSubject" className="block text-sm font-medium text-gray-700">
-              Filter by Subject
-            </label>
-            <select
-              name="subjectId"
-              value={filters.subjectId}
-              onChange={handleFilterChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              disabled={dataLoading}
-            >
-              <option value="">All Subjects</option>
-              {subjects.map((subject) => (
-                <option key={subject.id} value={subject.id}>
-                  {subject.subjectName}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="filterTitle" className="block text-sm font-medium text-gray-700">
-              Search by Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              value={filters.title}
-              onChange={handleFilterChange}
-              placeholder="Enter title..."
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              disabled={dataLoading}
-            />
-          </div>
-          <div>
-            <label htmlFor="filterDateFrom" className="block text-sm font-medium text-gray-700">
-              Date From
-            </label>
-            <input
-              type="date"
-              name="dateFrom"
-              value={filters.dateFrom}
-              onChange={handleFilterChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              disabled={dataLoading}
-            />
-          </div>
-          <div>
-            <label htmlFor="filterDateTo" className="block text-sm font-medium text-gray-700">
-              Date To
-            </label>
-            <input
-              type="date"
-              name="dateTo"
-              value={filters.dateTo}
-              onChange={handleFilterChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              disabled={dataLoading}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Manage Journals */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Items</h2>
-        {dataLoading ? (
-          renderSkeleton()
-        ) : (
-          <div className="space-y-2">
-            {filteredJournals.map((journal, i) => (
-              <div key={journal._id || i} className="flex justify-between items-center border p-2 rounded">
-                <span>{journal.detail.title} ({journal.type})</span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleSelectJournal(journal)}
-                    className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 cursor-pointer"
-                    disabled={journalLoading}
-                  >
-                    <Edit2 size={20} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteJournal(journal._id)}
-                    disabled={journalLoading}
-                    className="p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400 flex items-center gap-2 cursor-pointer"
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                </div>
+          {/* Filter Section */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Filter Items</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div>
+                <label htmlFor="filterType" className="block text-sm font-medium text-gray-700">
+                  Filter by Type
+                </label>
+                <select
+                  name="type"
+                  value={filters.type}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  disabled={dataLoading}
+                >
+                  <option value="">All Types</option>
+                  <option value="Conference Proceeding">Conference Proceeding</option>
+                  <option value="Book">Book</option>
+                  <option value="Book Chapters">Book Chapters</option>
+                  <option value="Question Papers">Question Papers</option>
+                  <option value="Research Papers">Research Papers</option>
+                  <option value="Thesis">Thesis</option>
+                  <option value="Dissertation">Dissertation</option>
+                  <option value="Manuscript">Manuscript</option>
+                </select>
               </div>
-            ))}
-            {filteredJournals.length === 0 && (
-              <p className="text-gray-500">No items match the selected filters.</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Update Item Form */}
-      {selectedJournal && (
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Update Item: {selectedJournal.detail.title}</h2>
-          <div className="mb-6">
-            <p className="text-sm text-gray-600">Step {step} of 5</p>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-              <div
-                className="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
-                style={{ width: `${(step / 5) * 100}%` }}
-              ></div>
+              <div>
+                <label htmlFor="filterSubject" className="block text-sm font-medium text-gray-700">
+                  Filter by Subject
+                </label>
+                <select
+                  name="subjectId"
+                  value={filters.subjectId}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  disabled={dataLoading}
+                >
+                  <option value="">All Subjects</option>
+                  {subjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>
+                      {subject.subjectName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="filterTitle" className="block text-sm font-medium text-gray-700">
+                  Search by Title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={filters.title}
+                  onChange={handleFilterChange}
+                  placeholder="Enter title..."
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  disabled={dataLoading}
+                />
+              </div>
+              <div>
+                <label htmlFor="filterDateFrom" className="block text-sm font-medium text-gray-700">
+                  Date From
+                </label>
+                <input
+                  type="date"
+                  name="dateFrom"
+                  value={filters.dateFrom}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  disabled={dataLoading}
+                />
+              </div>
+              <div>
+                <label htmlFor="filterDateTo" className="block text-sm font-medium text-gray-700">
+                  Date To
+                </label>
+                <input
+                  type="date"
+                  name="dateTo"
+                  value={filters.dateTo}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
+                  disabled={dataLoading}
+                />
+              </div>
             </div>
           </div>
-          {renderStep()}
-          <div className="flex justify-between mt-8">
-            {step > 1 && (
-              <button
-                onClick={() => setStep(step - 1)}
-                className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600 flex items-center gap-2 cursor-pointer"
-              >
-                Previous
-              </button>
-            )}
-            {step < 5 && (
-              <button
-                onClick={() => setStep(step + 1)}
-                disabled={!canProceed()}
-                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 flex items-center gap-2 cursor-pointer"
-              >
-                Next
-              </button>
+
+          {/* Manage Journals */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold mb-4">Items</h2>
+            {dataLoading ? (
+              renderSkeleton()
+            ) : (
+              <div className="space-y-2">
+                {filteredJournals.map((journal, i) => (
+                  <div key={journal._id || i}>
+                    <div className="flex justify-between items-center border p-2 rounded">
+                      <span>{journal.detail.title} ({journal.type})</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSelectJournal(journal)}
+                          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2 cursor-pointer"
+                          disabled={journalLoading}
+                        >
+                          <Edit2 size={20} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteJournal(journal._id)}
+                          disabled={journalLoading}
+                          className="p-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400 flex items-center gap-2 cursor-pointer"
+                        >
+                          <Trash2 size={20} />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Inline Edit Form */}
+                    {editingId === journal._id && selectedJournal && (
+                      <div className="mt-4 p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
+                        <div className="mb-4">
+                          <h3 className="text-lg font-bold text-blue-800">Update Item: {selectedJournal.detail.title}</h3>
+                          <div className="mt-2">
+                            <p className="text-sm text-gray-600">Step {step} of 5</p>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                              <div
+                                className="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+                                style={{ width: `${(step / 5) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                        {renderStep()}
+                        <div className="flex justify-between mt-6">
+                          {step > 1 && (
+                            <button
+                              onClick={() => setStep(step - 1)}
+                              className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600 flex items-center gap-2 cursor-pointer"
+                            >
+                              Previous
+                            </button>
+                          )}
+                          <div className="flex gap-2 ml-auto">
+                            <button
+                              onClick={handleCancelEdit}
+                              className="p-2 bg-gray-500 text-white rounded hover:bg-gray-600 flex items-center gap-2 cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                            {step < 5 && (
+                              <button
+                                onClick={() => setStep(step + 1)}
+                                disabled={!canProceed()}
+                                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 flex items-center gap-2 cursor-pointer"
+                              >
+                                Next
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {filteredJournals.length === 0 && (
+                  <p className="text-gray-500">No items match the selected filters.</p>
+                )}
+              </div>
             )}
           </div>
         </div>
-      )}
-    </div>
-    </div>
+      </div>
     </div>
   );
 };
